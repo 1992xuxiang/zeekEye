@@ -4,12 +4,16 @@ import com.alibaba.aliyun.crazyacking.spider.queue.CommentUrlQueue;
 import com.alibaba.aliyun.crazyacking.spider.queue.FollowUrlQueue;
 import com.alibaba.aliyun.crazyacking.spider.queue.RepostUrlQueue;
 import com.alibaba.aliyun.crazyacking.spider.queue.WeiboUrlQueue;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.io.*;
 import java.sql.*;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -19,7 +23,7 @@ import java.util.Properties;
 public class Initializer {
 
     private static final Logger logger = LoggerFactory.getLogger(Initializer.class);
-    private static final Connection conn = DBConnector.getConnection();
+    private static Connection conn = null;
 
     /**
      * 数据库中读取用户账号，并生成第一页微博的url，放入WeiboUrlQueue
@@ -166,13 +170,10 @@ public class Initializer {
      */
     public static void initAbnormalUrl() {
         try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(Constants.ABNORMAL_WEIBO_CLEANED_PATH), "utf-8"));
-
-            String accountLine;
-            while ((accountLine = reader.readLine()) != null) {
-                WeiboUrlQueue.addElement(accountLine);
+            List<String> lines = FileUtils.readLines(new File(Constants.ABNORMAL_WEIBO_CLEANED_PATH));
+            for (String line : lines) {
+                WeiboUrlQueue.addElement(line);
             }
-            reader.close();
         } catch (IOException e) {
             logger.error("", e);
         }
@@ -231,20 +232,27 @@ public class Initializer {
     /**
      * 从配置文件中读取配置信息：数据库连接、相关文件根目录、爬虫任务类型
      */
-    public void initializeParams() {
+    @PostConstruct
+    public void initParams() {
         InputStream in;
         try {
             in = new BufferedInputStream(new FileInputStream("classpath:conf\\spider.properties"));
             Properties properties = new Properties();
             properties.load(in);
 
+            System.out.println(properties.size());
+            for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+                System.out.println("key:" + entry.getKey());
+                System.out.println("value:" + entry.getValue());
+            }
+
             /*
             从配置文件中读取数据库连接参数
              */
-            DBConnector.CONN_URL = properties.getProperty("DB.connUrl");
-            DBConnector.DB_NAME = properties.getProperty("DB.name");
-            DBConnector.USERNAME = properties.getProperty("DB.username");
-            DBConnector.PASSWORD = properties.getProperty("DB.password");
+            DBConnector.DB_URL = properties.getProperty("db.url");
+            DBConnector.DB_NAME = properties.getProperty("db.name");
+            DBConnector.DB_USER = properties.getProperty("db.username");
+            DBConnector.DB_PASSWD = properties.getProperty("db.password");
 
             /*
             从配置文件中读取根目录，并设置相关文件地址
@@ -268,6 +276,9 @@ public class Initializer {
                 Constants.WEIBO_NO_MORE_THAN = Integer.parseInt(properties.getProperty("weibo.maxWeiboNum"));
             }
             in.close();
+
+            conn = DBConnector.getConnection();
+
         } catch (FileNotFoundException e) {
             logger.error("", e);
         } catch (IOException e) {

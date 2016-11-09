@@ -174,6 +174,7 @@ public class Utils {
      */
     public static void initAccount() {
         try {
+            System.out.println(Constants.LOGIN_ACCOUNT_PATH);
             List<String> lines = FileUtils.readLines(new File(Constants.LOGIN_ACCOUNT_PATH), ENCODING);
             for (String line : lines) {
                 String[] account = line.split(" ");

@@ -57,6 +57,12 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- MySQL database driver -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+
     </dependencies>
     <modelVersion>4.0.0</modelVersion>
 

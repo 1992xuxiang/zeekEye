@@ -11,7 +11,7 @@ public class Constants {
     public static final int LEVEL = 3;
     public static final int FANS_NO_MORE_THAN = Integer.MAX_VALUE;
     public static String FORBIDDEN_PAGE = "http://weibo.cn/pub";
-    public static String ROOT_DISK;
+    public static String ROOT_DISK= "classpath://conf//rootDisk//";
     public static String REPOST_LOG_PATH;
     public static String COMMENT_LOG_PATH;
     public static String SWITCH_ACCOUNT_LOG_PATH;

@@ -16,14 +16,13 @@ import javax.annotation.Resource;
 @ContextConfiguration(locations = {"classpath:application.xml"})
 public class SpiderStarter {
     private static final int WORKER_NUM = 5;
-    private static final String TYPE = "WEIBO";
+    private static final String TYPE = null;
 
     @Resource(name = "initializer")
     Initializer initializer;
 
     @Test
     public void startSpider() {
-        initializer.initializeParams();
         Utils.initAccount();
 
         switch (TYPE) {
